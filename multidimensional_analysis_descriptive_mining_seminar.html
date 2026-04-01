@@ -273,65 +273,8 @@ const topics = [
     `
   },
   {
-    id: "schema",
-    label: "3. Schemas",
-    content: () => `
-      <div class="card">
-        <h2>Data Warehouse Schema Types</h2>
-        <p>The schema defines how dimension tables and fact tables are organized in the data warehouse.</p>
-        <div class="grid2">
-          <div class="card" style="margin:0; border:0.5px solid var(--color-border-info);">
-            <span class="badge b-blue">Most Common</span>
-            <h3>Star Schema</h3>
-            <ul>
-              <li>Central <strong>Fact Table</strong> surrounded by <strong>Dimension Tables</strong></li>
-              <li>Dimension tables are <strong>denormalized</strong> (not split further)</li>
-              <li>Simple structure, fast queries</li>
-              <li>More storage space needed</li>
-            </ul>
-            <div class="example-box" style="margin-top:8px">Fact: Sales | Dims: Time, Product, Store, Customer</div>
-          </div>
-          <div class="card" style="margin:0;">
-            <h3>Snowflake Schema</h3>
-            <ul>
-              <li>Dimension tables are <strong>normalized</strong> (broken into sub-tables)</li>
-              <li>Looks like a snowflake when drawn</li>
-              <li>Saves storage, but slower queries (more joins)</li>
-              <li>Better data integrity</li>
-            </ul>
-            <div class="example-box" style="margin-top:8px">Product → Category → Department (3 levels)</div>
-          </div>
-        </div>
-        <div class="card" style="margin-top:1rem; border:0.5px solid var(--color-border-secondary);">
-          <h3>Galaxy Schema (Fact Constellation)</h3>
-          <p>Multiple fact tables sharing dimension tables. Used for complex enterprise data warehouses.</p>
-          <div class="example-box"><strong>Example:</strong> Sales Fact + Inventory Fact both share Time, Product, and Store dimensions.</div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Concept Hierarchy</h2>
-        <p>Defines the levels of abstraction within a dimension. Used for roll-up and drill-down operations.</p>
-        <div class="flow-row">
-          <div class="flow-box">Street</div><span class="arrow-sym">→</span>
-          <div class="flow-box">City</div><span class="arrow-sym">→</span>
-          <div class="flow-box">State</div><span class="arrow-sym">→</span>
-          <div class="flow-box">Country</div><span class="arrow-sym">→</span>
-          <div class="flow-box">All</div>
-        </div>
-        <div class="flow-row">
-          <div class="flow-box">Day</div><span class="arrow-sym">→</span>
-          <div class="flow-box">Week</div><span class="arrow-sym">→</span>
-          <div class="flow-box">Month</div><span class="arrow-sym">→</span>
-          <div class="flow-box">Quarter</div><span class="arrow-sym">→</span>
-          <div class="flow-box">Year</div>
-        </div>
-        <p style="margin-top:8px; font-size:13px;">Hierarchies allow <span class="highlight">automatic roll-up</span> — the system knows that Cities belong to States, so it can aggregate city-level data to state-level automatically.</p>
-      </div>
-    `
-  },
-  {
     id: "mining",
-    label: "4. Descriptive Mining",
+    label: "3. Descriptive Mining",
     content: () => `
       <div class="card">
         <h2>Descriptive Data Mining</h2>
@@ -389,7 +332,7 @@ const topics = [
   },
   {
     id: "complex",
-    label: "5. Complex Objects",
+    label: "4. Complex Objects",
     content: () => `
       <div class="card">
         <h2>Mining Complex Types of Data</h2>
@@ -488,50 +431,8 @@ const topics = [
     `
   },
   {
-    id: "iceberg",
-    label: "6. Iceberg & Cube Comp.",
-    content: () => `
-      <div class="card">
-        <h2>Iceberg Queries</h2>
-        <p>An <span class="highlight">Iceberg query</span> computes only the aggregate cells whose value is above a specified <strong>minimum support threshold</strong>. Most cells in a cube are irrelevant (below threshold) — like the ice under water. Only the "tip of the iceberg" matters.</p>
-        <div class="example-box">
-          <strong>SQL Iceberg Query:</strong><br>
-          SELECT product, region, SUM(sales) AS total<br>
-          FROM sales_fact<br>
-          GROUP BY product, region<br>
-          HAVING SUM(sales) &gt;= 50000<br><br>
-          — Only returns (product, region) pairs where total sales ≥ ₹50,000
-        </div>
-        <p>Without Iceberg, a cube with 100 products × 1000 regions = 1,00,000 cells. With threshold, maybe only 200 cells are meaningful.</p>
-      </div>
-      <div class="card">
-        <h2>Efficient Cube Computation</h2>
-        <div class="grid2">
-          <div>
-            <div class="term"><div class="t-name">Full Cube</div><div class="t-def">Compute ALL cuboids. Very expensive — exponential in #dimensions. Used when storage is not a concern.</div></div>
-            <div class="term"><div class="t-name">Partial Cube</div><div class="t-def">Compute only selected cuboids based on queries. Balances between full and on-demand.</div></div>
-          </div>
-          <div>
-            <div class="term"><div class="t-name">Approximate Cube</div><div class="t-def">Uses sampling/synopsis to estimate aggregates. Faster but not exact. Good for exploratory analysis.</div></div>
-            <div class="term"><div class="t-name">Closed Cube</div><div class="t-def">Lossless compression of the data cube. Only stores cells that are not redundantly covered by lower cells.</div></div>
-          </div>
-        </div>
-        <h3>Key Cube Computation Algorithms</h3>
-        <div class="table-responsive">
-        <table>
-          <tr><th>Algorithm</th><th>Approach</th><th>Best For</th></tr>
-          <tr><td>MultiWay Array Aggregation</td><td>In-memory, array-based</td><td>Dense data, few dimensions</td></tr>
-          <tr><td>BUC (Bottom-Up Computation)</td><td>Iceberg cubes, top-down pruning</td><td>Sparse, high-dimensional</td></tr>
-          <tr><td>H-Cubing</td><td>H-tree structure</td><td>High-dimensional sparse cubes</td></tr>
-          <tr><td>Star-Cubing</td><td>Star-tree integration</td><td>Mixed sparse/dense</td></tr>
-        </table>
-        </div>
-      </div>
-    `
-  },
-  {
     id: "summary",
-    label: "7. Summary + Quiz",
+    label: "5. Summary + Quiz",
     content: () => `
       <div class="card">
         <h2>Key Points to Remember</h2>
@@ -541,7 +442,6 @@ const topics = [
               <li>Data cube = n-dimensional structure with measures at intersections</li>
               <li>2ⁿ cuboids for n dimensions</li>
               <li>OLAP ops: Roll-up, Drill-down, Slice, Dice, Pivot</li>
-              <li>Star schema = denormalized; Snowflake = normalized</li>
               <li>Characterization = describe one class</li>
               <li>Discrimination = compare two classes</li>
             </ul>
@@ -549,8 +449,6 @@ const topics = [
           <div>
             <ul>
               <li>AOI (Attribute-Oriented Induction) = generalize via concept hierarchy</li>
-              <li>Iceberg query = only cells above threshold</li>
-              <li>BUC algorithm for sparse high-dim cubes</li>
               <li>Complex objects: spatial, temporal, text, graph, stream</li>
               <li>Spatial mining = DBSCAN, STING</li>
               <li>Sequential mining = GSP, PrefixSpan</li>
@@ -588,18 +486,6 @@ const quizData = [
     opts: ["Both target and contrasting", "Target class only", "Contrasting class only", "Random sample"],
     ans: 1,
     fb: "Characterization summarizes the target class. Discrimination compares target vs contrasting class."
-  },
-  {
-    q: "Which schema normalizes dimension tables into sub-tables?",
-    opts: ["Star schema", "Galaxy schema", "Snowflake schema", "Fact schema"],
-    ans: 2,
-    fb: "Snowflake schema normalizes dimension tables. Star schema uses denormalized dimension tables."
-  },
-  {
-    q: "BUC algorithm is best suited for which type of data cube?",
-    opts: ["Dense, few dimensions", "Sparse, high-dimensional (Iceberg)", "Equal distribution, 3D", "Multimedia data"],
-    ans: 1,
-    fb: "BUC (Bottom-Up Computation) uses pruning for iceberg cubes — best for sparse, high-dimensional data."
   }
 ];
 
