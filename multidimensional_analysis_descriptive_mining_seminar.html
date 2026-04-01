@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multidimensional Analysis Seminar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-main: #0a0b10;
+    --bg-card: rgba(20, 22, 32, 0.6);
+    --bg-card-hover: rgba(28, 31, 46, 0.8);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8f9fa;
+    --text-secondary: #9ba1b0;
+    --primary-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --font: 'Outfit', sans-serif;
+    --hero-grad: var(--hero-grad);
+    --tab-hover-bg: rgba(255,255,255,0.05);
+    --table-hover-bg: rgba(255,255,255,0.05);
+  }
+  
+  :root[data-theme="light"] {
+    --bg-main: #f1f5f9;
+    --bg-card: rgba(255, 255, 255, 0.5);
+    --bg-card-hover: rgba(255, 255, 255, 0.8);
+    --border-glass: rgba(0, 0, 0, 0.08);
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --hero-grad: linear-gradient(to right, #0f172a, #4338ca);
+    --tab-hover-bg: rgba(0,0,0,0.05);
+    --table-hover-bg: rgba(0,0,0,0.04);
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background-color: var(--bg-main);
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  
+  * { box-sizing: border-box; }
+
+  .seminar-wrap { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+  .glass {
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .hero { border-radius: 24px; padding: 3rem 2.5rem; margin-bottom: 3rem; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary-grad); }
+  .hero h1 { font-size: 2.5rem; font-weight: 700; margin: 1rem 0; background: var(--hero-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; letter-spacing: -0.02em; }
+  .hero p { font-size: 1.1rem; color: var(--text-secondary); margin: 0; font-weight: 300; }
+
+  .tabs { display: flex; gap: 12px; margin-bottom: 2.5rem; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid var(--border-glass); justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-behavior: smooth; }
+  .tabs::-webkit-scrollbar { display: none; }
+  @media(min-width: 768px) { .tabs { justify-content: center; flex-wrap: wrap; overflow-x: visible; } }
+  .tab { padding: 10px 20px; font-size: 0.95rem; font-family: var(--font); font-weight: 500; border: 1px solid transparent; border-radius: 12px; cursor: pointer; background: transparent; color: var(--text-secondary); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .tab:hover { background: var(--tab-hover-bg); color: var(--text-primary); transform: translateY(-1px); }
+  .tab.active { background: var(--primary-grad); color: var(--text-primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); border-color: transparent; }
+
+  .section { display: none; animation: fadeIn 0.5s ease forwards; opacity: 0; transform: translateY(10px); }
+  .section.active { display: block; }
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+  .card:hover { transform: translateY(-5px) scale(1.02); border-color: rgba(139, 92, 246, 0.5); box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 10; position: relative; }
+  .card h2 { font-size: 1.5rem; font-weight: 600; margin: 0 0 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+  .card h2::before { content: ''; display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--primary-grad); }
+  .card h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.8rem; color: var(--text-primary); }
+  .card p, .card li { font-size: 1rem; color: var(--text-secondary); line-height: 1.7; margin: 0 0 0.8rem; font-weight: 300; }
+  .card ul { padding-left: 1.5rem; margin: 0 0 1rem; }
+  .card li::marker { color: #8b5cf6; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  @media(max-width: 768px){ .grid2 { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } .hero { padding: 2rem 1.5rem; } .card { padding: 1.5rem; } }
+
+  .badge { display: inline-flex; align-items: center; font-size: 0.75rem; padding: 4px 12px; border-radius: 100px; margin: 0 6px 8px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .b-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .b-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+  .b-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .b-red   { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+  .term { border-left: 3px solid #8b5cf6; padding: 12px 16px; margin-bottom: 12px; border-radius: 0 12px 12px 0; background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0) 100%); }
+  .term .t-name { font-size: 1.05rem; font-weight: 600; color: #a78bfa; }
+  .term .t-def  { font-size: 0.95rem; color: var(--text-secondary); margin-top: 4px; font-weight: 300; line-height: 1.6;}
+
+  .example-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px 20px; margin: 16px 0; font-size: 0.95rem; color: var(--text-secondary); border: 1px dashed rgba(255,255,255,0.15); position: relative; }
+  .example-box strong { color: var(--text-primary); font-weight: 600; }
+  .example-box::before { content: '💡'; position: absolute; top: -12px; right: 20px; font-size: 1.2rem; background: var(--bg-main); border-radius: 50%; padding: 2px; }
+
+  .quiz-q { margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 16px; border: 1px solid var(--border-glass);}
+  .quiz-q p { font-size: 1.1rem; font-weight: 500; color: var(--text-primary); margin-bottom: 16px; }
+  .quiz-opt { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt button { text-align: left; padding: 12px 16px; font-size: 0.95rem; font-family: var(--font); border: 1px solid var(--border-glass); border-radius: 10px; cursor: pointer; background: rgba(255,255,255,0.03); color: var(--text-secondary); transition: all 0.2s; }
+  .quiz-opt button:hover { background: var(--tab-hover-bg); color: var(--text-primary); border-color: rgba(255,255,255,0.2); transform: translateX(4px);}
+  .quiz-opt button.correct { background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #10b981; }
+  .quiz-opt button.wrong   { background: rgba(239, 68, 68, 0.2);  color: #f87171; border-color: #ef4444; }
+  .quiz-fb { font-size: 0.95rem; margin-top: 12px; padding: 12px 16px; border-radius: 10px; animation: fadeIn 0.3s; }
+  .quiz-fb.ok  { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981;}
+  .quiz-fb.bad { background: rgba(239, 68, 68, 0.1);  color: #f87171; border-left: 3px solid #ef4444;}
+  
+  .quiz-btn { font-size: 0.95rem; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; background: var(--primary-grad); color: #fff; font-weight: 500; transition: all 0.2s; font-family: var(--font); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2); }
+  .quiz-btn:hover { box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); transform: translateY(-2px); }
+
+  .flow-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid var(--border-glass);}
+  .flow-box { background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); border: 1px solid var(--border-glass); border-radius: 8px; padding: 10px 16px; font-size: 0.95rem; color: var(--text-primary); font-weight: 500; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s;}
+  .flow-box:hover { transform: translateY(-2px); border-color: rgba(139, 92, 246, 0.5); }
+  .arrow-sym { font-size: 1.2rem; color: #8b5cf6; font-weight: bold;}
+
+  .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1rem 0; border-radius: 12px; border: 1px solid var(--border-glass); }
+  table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; font-size: 0.95rem; }
+  th { text-align: left; padding: 14px 16px; font-weight: 600; color: #a78bfa; background: rgba(0,0,0,0.4); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; }
+  td { padding: 14px 16px; color: var(--text-secondary); background: var(--bg-card); border-top: 1px solid var(--border-glass); }
+  tr:hover td { background: var(--tab-hover-bg); color: var(--text-primary); }
+
+  .highlight { color: #a855f7; font-weight: 600; text-shadow: 0 0 10px rgba(168, 85, 247, 0.3); }
+  .sc-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+  
+  #score-display { font-size: 1.1rem !important; font-weight: 600; color: #34d399 !important; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); }
+  .theme-toggle { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 100; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .theme-toggle:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); border-color: rgba(139, 92, 246, 0.5); }
+  :root[data-theme="light"] .moon-icon { display: none; }
+  :root[data-theme="light"] .sun-icon { display: block !important; }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+  <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+  <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+</button>
+
+<div class="seminar-wrap">
+
+  <div class="hero glass">
+    <div class="sc-row">
+      <span class="badge b-blue">Data Mining</span>
+      <span class="badge b-green">OLAP</span>
+      <span class="badge b-amber">Complex Objects</span>
+    </div>
+    <h1>Multidimensional Analysis<br>&amp; Descriptive Mining</h1>
+    <p>Premium study experience exploring complex objects, techniques, and theory</p>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="sections"></div>
+
+</div>
+
+<script>
+  const root = document.documentElement;
+  const themeToggle = document.getElementById('theme-toggle');
+  
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
+    root.setAttribute('data-theme', 'light');
+  } else {
+    root.removeAttribute('data-theme');
+  }
+
+  themeToggle.addEventListener('click', () => {
+    if (root.getAttribute('data-theme') === 'light') {
+      root.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  });
+
+const topics = [
+  {
+    id: "intro",
+    label: "1. Introduction",
+    content: () => `
+      <div class="card">
+        <h2>What is Multidimensional Analysis?</h2>
+        <p>Multidimensional analysis is the technique of analyzing data across <span class="highlight">multiple dimensions simultaneously</span> to discover patterns, relationships, and insights that cannot be seen in a one-dimensional or flat view.</p>
+        <div class="term"><div class="t-name">Dimension</div><div class="t-def">A perspective or attribute used to categorize data — e.g., Time, Location, Product, Customer.</div></div>
+        <div class="term"><div class="t-name">Measure / Fact</div><div class="t-def">The numeric value being analyzed — e.g., Sales, Revenue, Quantity, Profit.</div></div>
+        <div class="term"><div class="t-name">OLAP (Online Analytical Processing)</div><div class="t-def">A category of software that enables fast, multidimensional analysis of large datasets. Works on data warehouses.</div></div>
+        <div class="example-box"><strong>Real example:</strong> A supermarket analyzes "Sales" across Time (Jan–Dec), Region (North/South/East/West), and Product Category (Dairy/Snacks/Beverages) — that's a 3-dimensional cube.</div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Why Multidimensional?</h3>
+          <ul>
+            <li>Business questions are naturally multi-faceted</li>
+            <li>Flat (2D) tables hide cross-dimensional patterns</li>
+            <li>Enables drill-down, roll-up, slicing — interactively</li>
+            <li>Faster queries than traditional SQL for analytics</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Key Application Areas</h3>
+          <ul>
+            <li>Business Intelligence (BI) dashboards</li>
+            <li>Sales and marketing analytics</li>
+            <li>Healthcare: patient, time, diagnosis analysis</li>
+            <li>Supply chain optimization</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: "datacube",
+    label: "2. Data Cube",
+    content: () => `
+      <div class="card">
+        <h2>The Data Cube</h2>
+        <p>A <span class="highlight">data cube</span> is an n-dimensional generalization of a 2D spreadsheet. It is the core data structure for multidimensional analysis.</p>
+        <div class="grid2">
+          <div>
+            <h3>Structure</h3>
+            <ul>
+              <li><strong>Cell:</strong> Intersection of dimension values holding a measure</li>
+              <li><strong>Cuboid:</strong> A sub-cube obtained by grouping on some dimensions</li>
+              <li><strong>Apex cuboid:</strong> The most summarized level (all dimensions aggregated)</li>
+              <li><strong>Base cuboid:</strong> The most detailed level (no aggregation)</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Example: 3D Sales Cube</h3>
+            <div class="example-box">
+              <strong>Dimensions:</strong> Time (Q1,Q2,Q3,Q4), Product (A,B,C), Region (N,S,E,W)<br><br>
+              <strong>Cell value:</strong> Sales(Q1, Product-A, North) = ₹4,50,000<br><br>
+              <strong>Total cuboids</strong> for 3 dimensions = 2³ = <strong>8 cuboids</strong>
+            </div>
+          </div>
+        </div>
+        <h3>Cuboid Lattice</h3>
+        <p>For n dimensions, a data cube has <span class="highlight">2ⁿ cuboids</span> arranged in a lattice (hierarchy).</p>
+        <div class="example-box">
+          <strong>For 3 dims (Time, Product, Region):</strong><br>
+          Level 0 (Apex): () — Total sales across all<br>
+          Level 1: (Time), (Product), (Region)<br>
+          Level 2: (Time, Product), (Time, Region), (Product, Region)<br>
+          Level 3 (Base): (Time, Product, Region)
+        </div>
+      </div>
+      <div class="card">
+        <h2>Data Cube Operations (OLAP)</h2>
+        <div class="grid2">
+          <div>
+            <div class="term"><div class="t-name">Roll-up (Drill-up)</div><div class="t-def">Climbing up the concept hierarchy — summarize. E.g., Day → Month → Quarter → Year</div></div>
+            <div class="term"><div class="t-name">Drill-down (Roll-down)</div><div class="t-def">Going from summary to detail. E.g., Year → Quarter → Month → Day</div></div>
+            <div class="term"><div class="t-name">Slice</div><div class="t-def">Fix one dimension to a single value. E.g., Show data only for Region = "North"</div></div>
+          </div>
+          <div>
+            <div class="term"><div class="t-name">Dice</div><div class="t-def">Fix two or more dimensions. E.g., Region="North" AND Time="Q1"</div></div>
+            <div class="term"><div class="t-name">Pivot (Rotate)</div><div class="t-def">Rotate the data cube to see it from a different perspective. Rows ↔ Columns</div></div>
+            <div class="term"><div class="t-name">Drill-across</div><div class="t-def">Query across multiple fact tables sharing common dimensions</div></div>
+          </div>
+        </div>
+        <div class="example-box"><strong>Tanglish tip:</strong> Roll-up = "zoom out" maadhiri — details hide aagum, total maatrum teriyum. Drill-down = "zoom in" — oru city la exact sales theriyum.</div>
+      </div>
+    `
+  },
+  {
+    id: "schema",
+    label: "3. Schemas",
+    content: () => `
+      <div class="card">
+        <h2>Data Warehouse Schema Types</h2>
+        <p>The schema defines how dimension tables and fact tables are organized in the data warehouse.</p>
+        <div class="grid2">
+          <div class="card" style="margin:0; border:0.5px solid var(--color-border-info);">
+            <span class="badge b-blue">Most Common</span>
+            <h3>Star Schema</h3>
+            <ul>
+              <li>Central <strong>Fact Table</strong> surrounded by <strong>Dimension Tables</strong></li>
+              <li>Dimension tables are <strong>denormalized</strong> (not split further)</li>
+              <li>Simple structure, fast queries</li>
+              <li>More storage space needed</li>
+            </ul>
+            <div class="example-box" style="margin-top:8px">Fact: Sales | Dims: Time, Product, Store, Customer</div>
+          </div>
+          <div class="card" style="margin:0;">
+            <h3>Snowflake Schema</h3>
+            <ul>
+              <li>Dimension tables are <strong>normalized</strong> (broken into sub-tables)</li>
+              <li>Looks like a snowflake when drawn</li>
+              <li>Saves storage, but slower queries (more joins)</li>
+              <li>Better data integrity</li>
+            </ul>
+            <div class="example-box" style="margin-top:8px">Product → Category → Department (3 levels)</div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:1rem; border:0.5px solid var(--color-border-secondary);">
+          <h3>Galaxy Schema (Fact Constellation)</h3>
+          <p>Multiple fact tables sharing dimension tables. Used for complex enterprise data warehouses.</p>
+          <div class="example-box"><strong>Example:</strong> Sales Fact + Inventory Fact both share Time, Product, and Store dimensions.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Concept Hierarchy</h2>
+        <p>Defines the levels of abstraction within a dimension. Used for roll-up and drill-down operations.</p>
+        <div class="flow-row">
+          <div class="flow-box">Street</div><span class="arrow-sym">→</span>
+          <div class="flow-box">City</div><span class="arrow-sym">→</span>
+          <div class="flow-box">State</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Country</div><span class="arrow-sym">→</span>
+          <div class="flow-box">All</div>
+        </div>
+        <div class="flow-row">
+          <div class="flow-box">Day</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Week</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Month</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Quarter</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Year</div>
+        </div>
+        <p style="margin-top:8px; font-size:13px;">Hierarchies allow <span class="highlight">automatic roll-up</span> — the system knows that Cities belong to States, so it can aggregate city-level data to state-level automatically.</p>
+      </div>
+    `
+  },
+  {
+    id: "mining",
+    label: "4. Descriptive Mining",
+    content: () => `
+      <div class="card">
+        <h2>Descriptive Data Mining</h2>
+        <p><span class="highlight">Descriptive mining</span> summarizes the general properties of the data in the database. It describes <em>what is in the data</em>, not what will happen (that's predictive). Also called <strong>Characterization and Discrimination</strong>.</p>
+        <div class="grid2">
+          <div class="card" style="margin:0; border:0.5px solid var(--color-border-success);">
+            <span class="badge b-green">Type 1</span>
+            <h3>Data Characterization</h3>
+            <p>Summarizes the <strong>general characteristics</strong> of a target class of data.</p>
+            <div class="example-box"><strong>Example:</strong> "Describe all customers who bought premium products this year" — generates a summary: Age 28–45, Income &gt;₹8L, Urban area...</div>
+            <ul>
+              <li>Uses the <strong>target class</strong> only</li>
+              <li>Output: attribute-value pairs with proportions</li>
+              <li>Presented as pie charts, bar charts, cubes</li>
+            </ul>
+          </div>
+          <div class="card" style="margin:0; border:0.5px solid var(--color-border-warning);">
+            <span class="badge b-amber">Type 2</span>
+            <h3>Data Discrimination</h3>
+            <p>Compares the <strong>target class vs contrasting class</strong> to find discriminating features.</p>
+            <div class="example-box"><strong>Example:</strong> "Compare premium buyers vs regular buyers" — finds that premium buyers are more likely to live in metros and visit stores on weekends.</div>
+            <ul>
+              <li>Uses target AND contrasting class</li>
+              <li>Output: discriminant rules with ratios</li>
+              <li>Highlights what makes target class unique</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Attribute-Oriented Induction (AOI)</h2>
+        <p>A key technique for data characterization. It climbs the <span class="highlight">concept hierarchy</span> to generalize data from primitive-level to high-level concepts.</p>
+        <h3>AOI Steps</h3>
+        <div class="flow-row">
+          <div class="flow-box">Collect target data</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Remove irrelevant attributes</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Generalize attributes</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Aggregate tuples</div><span class="arrow-sym">→</span>
+          <div class="flow-box">Present result</div>
+        </div>
+        <div class="example-box">
+          <strong>Example:</strong><br>
+          Original: Name="Kavitha", Age=23, Salary=₹22,000, Dept="CS"<br>
+          After AOI: Age=Young, Salary=Low, Dept=CS<br>
+          Summary: "Young, low-income CS students" — 75% of scholarship applicants
+        </div>
+        <h3>Output Formats</h3>
+        <ul>
+          <li><strong>Prime relation</strong> — a table showing generalized data with count/proportion</li>
+          <li><strong>Characteristic rules</strong> — if Age=Young ∧ Salary=Low → 75% scholarship applicants</li>
+          <li><strong>Discriminant rules</strong> — if Age=Young ∧ Dept=CS → 3× more likely than Arts students</li>
+        </ul>
+      </div>
+    `
+  },
+  {
+    id: "complex",
+    label: "5. Complex Objects",
+    content: () => `
+      <div class="card">
+        <h2>Mining Complex Types of Data</h2>
+        <p>Traditional mining works on relational (flat) data. But real-world data is complex — it includes <span class="highlight">spatial, temporal, text, multimedia, sequence, and graph data</span>. Descriptive mining must be extended for each type.</p>
+      </div>
+      <div class="card">
+        <h2>Types of Complex Objects</h2>
+        <div class="table-responsive">
+        <table>
+          <tr>
+            <th>Type</th><th>Description</th><th>Example</th><th>Techniques</th>
+          </tr>
+          <tr>
+            <td><span class="badge b-blue">Spatial</span></td>
+            <td>Data with geographic location</td>
+            <td>Maps, GPS data, satellite images</td>
+            <td>Spatial clustering, topological rules</td>
+          </tr>
+          <tr>
+            <td><span class="badge b-green">Temporal</span></td>
+            <td>Data with time component</td>
+            <td>Stock prices, sensor readings</td>
+            <td>Trend analysis, time-series mining</td>
+          </tr>
+          <tr>
+            <td><span class="badge b-amber">Sequence</span></td>
+            <td>Ordered set of events</td>
+            <td>Web click streams, purchase history</td>
+            <td>Sequential pattern mining (GSP, SPAM)</td>
+          </tr>
+          <tr>
+            <td><span class="badge b-red">Text</span></td>
+            <td>Unstructured natural language</td>
+            <td>Reviews, emails, tweets</td>
+            <td>Text classification, NLP, LDA</td>
+          </tr>
+          <tr>
+            <td><span class="badge b-blue">Graph</span></td>
+            <td>Node-edge structures</td>
+            <td>Social networks, molecules</td>
+            <td>Graph pattern mining, subgraph discovery</td>
+          </tr>
+          <tr>
+            <td><span class="badge b-green">Multimedia</span></td>
+            <td>Images, audio, video</td>
+            <td>Medical scans, surveillance video</td>
+            <td>Content-based retrieval, feature extraction</td>
+          </tr>
+          <tr>
+            <td><span class="badge b-amber">Stream</span></td>
+            <td>Continuous, real-time data</td>
+            <td>Network traffic, IoT sensors</td>
+            <td>Sliding window, synopsis structures</td>
+          </tr>
+        </table>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Spatial Data Mining</h3>
+          <ul>
+            <li>Spatial characterization: "What are stores near highways like?"</li>
+            <li>Spatial discrimination: Urban vs Rural sales patterns</li>
+            <li>Spatial association: "Store A is within 2km of Store B"</li>
+            <li>Algorithms: DBSCAN, STING, CLIQUE</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Sequential Pattern Mining</h3>
+          <ul>
+            <li>Find patterns in ordered events</li>
+            <li>Example: Diapers → Baby food → Stroller (3 months)</li>
+            <li>GSP (Generalized Sequential Patterns)</li>
+            <li>PrefixSpan algorithm</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Graph Mining</h3>
+          <ul>
+            <li>Frequent subgraph discovery</li>
+            <li>gSpan (graph-based substructure)</li>
+            <li>Social network community detection</li>
+            <li>Molecular structure analysis (drug discovery)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Stream Data Mining</h3>
+          <ul>
+            <li>Data arrives continuously, can't store all</li>
+            <li>Sliding window model (recent n items)</li>
+            <li>Landmark window model</li>
+            <li>Algorithms: Lossy Counting, CluStream</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: "iceberg",
+    label: "6. Iceberg & Cube Comp.",
+    content: () => `
+      <div class="card">
+        <h2>Iceberg Queries</h2>
+        <p>An <span class="highlight">Iceberg query</span> computes only the aggregate cells whose value is above a specified <strong>minimum support threshold</strong>. Most cells in a cube are irrelevant (below threshold) — like the ice under water. Only the "tip of the iceberg" matters.</p>
+        <div class="example-box">
+          <strong>SQL Iceberg Query:</strong><br>
+          SELECT product, region, SUM(sales) AS total<br>
+          FROM sales_fact<br>
+          GROUP BY product, region<br>
+          HAVING SUM(sales) &gt;= 50000<br><br>
+          — Only returns (product, region) pairs where total sales ≥ ₹50,000
+        </div>
+        <p>Without Iceberg, a cube with 100 products × 1000 regions = 1,00,000 cells. With threshold, maybe only 200 cells are meaningful.</p>
+      </div>
+      <div class="card">
+        <h2>Efficient Cube Computation</h2>
+        <div class="grid2">
+          <div>
+            <div class="term"><div class="t-name">Full Cube</div><div class="t-def">Compute ALL cuboids. Very expensive — exponential in #dimensions. Used when storage is not a concern.</div></div>
+            <div class="term"><div class="t-name">Partial Cube</div><div class="t-def">Compute only selected cuboids based on queries. Balances between full and on-demand.</div></div>
+          </div>
+          <div>
+            <div class="term"><div class="t-name">Approximate Cube</div><div class="t-def">Uses sampling/synopsis to estimate aggregates. Faster but not exact. Good for exploratory analysis.</div></div>
+            <div class="term"><div class="t-name">Closed Cube</div><div class="t-def">Lossless compression of the data cube. Only stores cells that are not redundantly covered by lower cells.</div></div>
+          </div>
+        </div>
+        <h3>Key Cube Computation Algorithms</h3>
+        <div class="table-responsive">
+        <table>
+          <tr><th>Algorithm</th><th>Approach</th><th>Best For</th></tr>
+          <tr><td>MultiWay Array Aggregation</td><td>In-memory, array-based</td><td>Dense data, few dimensions</td></tr>
+          <tr><td>BUC (Bottom-Up Computation)</td><td>Iceberg cubes, top-down pruning</td><td>Sparse, high-dimensional</td></tr>
+          <tr><td>H-Cubing</td><td>H-tree structure</td><td>High-dimensional sparse cubes</td></tr>
+          <tr><td>Star-Cubing</td><td>Star-tree integration</td><td>Mixed sparse/dense</td></tr>
+        </table>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: "summary",
+    label: "7. Summary + Quiz",
+    content: () => `
+      <div class="card">
+        <h2>Key Points to Remember</h2>
+        <div class="grid2">
+          <div>
+            <ul>
+              <li>Data cube = n-dimensional structure with measures at intersections</li>
+              <li>2ⁿ cuboids for n dimensions</li>
+              <li>OLAP ops: Roll-up, Drill-down, Slice, Dice, Pivot</li>
+              <li>Star schema = denormalized; Snowflake = normalized</li>
+              <li>Characterization = describe one class</li>
+              <li>Discrimination = compare two classes</li>
+            </ul>
+          </div>
+          <div>
+            <ul>
+              <li>AOI (Attribute-Oriented Induction) = generalize via concept hierarchy</li>
+              <li>Iceberg query = only cells above threshold</li>
+              <li>BUC algorithm for sparse high-dim cubes</li>
+              <li>Complex objects: spatial, temporal, text, graph, stream</li>
+              <li>Spatial mining = DBSCAN, STING</li>
+              <li>Sequential mining = GSP, PrefixSpan</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Quick Quiz</h2>
+        <div id="quiz-container"></div>
+        <div style="margin-top:12px; display:flex; align-items:center; gap:12px;">
+          <span id="score-display" style="font-size:13px; color:var(--color-text-secondary);"></span>
+          <button onclick="resetQuiz()" class="quiz-btn">Reset quiz</button>
+        </div>
+      </div>
+    `
+  }
+];
+
+const quizData = [
+  {
+    q: "For a data cube with 4 dimensions, how many total cuboids exist?",
+    opts: ["4", "8", "16", "32"],
+    ans: 2,
+    fb: "2⁴ = 16 cuboids. For n dimensions, there are always 2ⁿ cuboids in the lattice."
+  },
+  {
+    q: "Which OLAP operation fixes ONE dimension to a single value?",
+    opts: ["Roll-up", "Pivot", "Slice", "Dice"],
+    ans: 2,
+    fb: "Slice fixes one dimension. Dice fixes two or more dimensions."
+  },
+  {
+    q: "Data Characterization targets which class?",
+    opts: ["Both target and contrasting", "Target class only", "Contrasting class only", "Random sample"],
+    ans: 1,
+    fb: "Characterization summarizes the target class. Discrimination compares target vs contrasting class."
+  },
+  {
+    q: "Which schema normalizes dimension tables into sub-tables?",
+    opts: ["Star schema", "Galaxy schema", "Snowflake schema", "Fact schema"],
+    ans: 2,
+    fb: "Snowflake schema normalizes dimension tables. Star schema uses denormalized dimension tables."
+  },
+  {
+    q: "BUC algorithm is best suited for which type of data cube?",
+    opts: ["Dense, few dimensions", "Sparse, high-dimensional (Iceberg)", "Equal distribution, 3D", "Multimedia data"],
+    ans: 1,
+    fb: "BUC (Bottom-Up Computation) uses pruning for iceberg cubes — best for sparse, high-dimensional data."
+  }
+];
+
+let quizState = [];
+
+function renderQuiz() {
+  quizState = quizData.map(() => ({ answered: false, correct: false }));
+  const c = document.getElementById('quiz-container');
+  if (!c) return;
+  c.innerHTML = quizData.map((q, qi) => `
+    <div class="quiz-q" id="qq-${qi}">
+      <p>${qi+1}. ${q.q}</p>
+      <div class="quiz-opt">
+        ${q.opts.map((o, oi) => `<button onclick="answerQ(${qi},${oi})" id="qb-${qi}-${oi}">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-fb" id="qf-${qi}" style="display:none"></div>
+    </div>
+  `).join('');
+  document.getElementById('score-display').textContent = '';
+}
+
+function answerQ(qi, oi) {
+  if (quizState[qi].answered) return;
+  quizState[qi].answered = true;
+  quizState[qi].correct = (oi === quizData[qi].ans);
+  const btn = document.getElementById(`qb-${qi}-${oi}`);
+  btn.classList.add(oi === quizData[qi].ans ? 'correct' : 'wrong');
+  if (oi !== quizData[qi].ans) {
+    document.getElementById(`qb-${qi}-${quizData[qi].ans}`).classList.add('correct');
+  }
+  const fb = document.getElementById(`qf-${qi}`);
+  fb.style.display = 'block';
+  fb.className = 'quiz-fb ' + (oi === quizData[qi].ans ? 'ok' : 'bad');
+  fb.textContent = quizData[qi].fb;
+  const done = quizState.filter(s => s.answered).length;
+  if (done === quizData.length) {
+    const score = quizState.filter(s => s.correct).length;
+    document.getElementById('score-display').textContent = `Score: ${score}/${quizData.length}`;
+  }
+}
+
+function resetQuiz() { renderQuiz(); }
+
+// Build tabs and sections
+const tabsEl = document.getElementById('tabs');
+const sectsEl = document.getElementById('sections');
+
+topics.forEach((t, i) => {
+  const tab = document.createElement('button');
+  tab.className = 'tab' + (i === 0 ? ' active' : '');
+  tab.textContent = t.label;
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('sec-' + t.id).classList.add('active');
+    if (t.id === 'summary') setTimeout(renderQuiz, 0);
+  };
+  tabsEl.appendChild(tab);
+
+  const sec = document.createElement('div');
+  sec.className = 'section' + (i === 0 ? ' active' : '');
+  sec.id = 'sec-' + t.id;
+  sec.innerHTML = t.content();
+  sectsEl.appendChild(sec);
+});
+</script>
+
+</body>
+</html>
